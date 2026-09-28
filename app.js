@@ -203,6 +203,142 @@ const SOUND_PRESETS = {
       filter.connect(presetGain);
       presetGain.connect(outNode);
     }
+  },
+
+  crystalbowl: {
+    name: 'Crystal Singing Bowl (852Hz)',
+    play: (ctx, outNode, vol) => {
+      // 852Hz Solfeggio / Crown Chakra pure crystal tone with soft shimmer
+      const now = ctx.currentTime;
+      const baseFreq = 852;
+      const harmonics = [
+        { freq: baseFreq, gain: 0.65, decay: 2.2 },
+        { freq: baseFreq * 2 + 1.2, gain: 0.25, decay: 1.8 },
+        { freq: baseFreq * 3.01, gain: 0.12, decay: 1.4 }
+      ];
+
+      const presetGain = ctx.createGain();
+      presetGain.gain.setValueAtTime(0.0001, now);
+      presetGain.gain.exponentialRampToValueAtTime(vol * 0.75, now + 0.04);
+
+      harmonics.forEach(h => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(h.freq, now);
+
+        g.gain.setValueAtTime(h.gain, now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + h.decay);
+
+        osc.connect(g);
+        g.connect(presetGain);
+
+        osc.start(now);
+        osc.stop(now + h.decay + 0.1);
+      });
+
+      presetGain.connect(outNode);
+    }
+  },
+
+  windchime: {
+    name: 'Koshi Wind Chime',
+    play: (ctx, outNode, vol) => {
+      // 4-chime silver pentatonic chord cluster (E5, G5, B5, D6)
+      const now = ctx.currentTime;
+      const chimes = [
+        { freq: 659.25, time: 0.00, gain: 0.45, decay: 1.6 },
+        { freq: 783.99, time: 0.04, gain: 0.40, decay: 1.5 },
+        { freq: 987.77, time: 0.09, gain: 0.35, decay: 1.7 },
+        { freq: 1174.66, time: 0.14, gain: 0.30, decay: 1.4 }
+      ];
+
+      chimes.forEach(c => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        const start = now + c.time;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(c.freq, start);
+
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(vol * c.gain, start + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + c.decay);
+
+        osc.connect(g);
+        g.connect(outNode);
+
+        osc.start(start);
+        osc.stop(start + c.decay + 0.05);
+      });
+    }
+  },
+
+  marimba: {
+    name: 'Warm Raindrop / Marimba',
+    play: (ctx, outNode, vol) => {
+      // Soft organic wooden mallet raindrop (523.25 Hz C5 -> 659.25 Hz E5)
+      const now = ctx.currentTime;
+      const notes = [
+        { freq: 523.25, time: 0.00, gain: 0.6, decay: 0.65 },
+        { freq: 659.25, time: 0.08, gain: 0.5, decay: 0.75 }
+      ];
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1400, now);
+
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        const start = now + n.time;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(n.freq, start);
+
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(vol * n.gain, start + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + n.decay);
+
+        osc.connect(g);
+        g.connect(filter);
+
+        osc.start(start);
+        osc.stop(start + n.decay + 0.05);
+      });
+
+      filter.connect(outNode);
+    }
+  },
+
+  templewood: {
+    name: 'Zen Mokugyo (Wood Bell)',
+    play: (ctx, outNode, vol) => {
+      // Hollow resonant wooden temple knock
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(420, now);
+      filter.Q.setValueAtTime(3.5, now);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(360, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.06);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(vol * 0.85, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(outNode);
+
+      osc.start(now);
+      osc.stop(now + 0.55);
+    }
   }
 };
 
@@ -307,6 +443,8 @@ const elements = {
 // Subtle Palette Gradients for Radial Progress Ring
 const THEME_GRADIENTS = {
   sage: ['#a6c0b4', '#8ba89b', '#749688'],
+  ocean: ['#8ec0e3', '#5e9ec9', '#4b86ad'],
+  midnight: ['#94b5e0', '#6890c2', '#5375a3'],
   stone: ['#d6c5b2', '#bfaa95', '#a38e79'],
   slate: ['#9db5c7', '#7f98ab', '#6c8597'],
   minimal: ['#cfcfd4', '#b0b0b5', '#929299']
