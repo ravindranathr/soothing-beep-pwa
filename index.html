@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ZenPulse — Soothing Interval Chime PWA</title>
   <meta name="description" content="A soothing, mindful interval chime Progressive Web App that plays gentle, calming beeps every 10 seconds. Offline ready and installable.">
-  <meta name="theme-color" content="#064e3b">
+  <meta name="theme-color" content="#12151b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ZenPulse">
@@ -23,7 +23,7 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-theme="sage">
   <!-- Ambient background glow elements -->
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
@@ -34,7 +34,7 @@
     <header class="app-header">
       <div class="brand">
         <div class="brand-icon">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
@@ -45,8 +45,22 @@
         </div>
       </div>
       <div class="header-actions">
+        <!-- Subtle Theme Selector -->
+        <div class="theme-picker" title="Subtle Color Palette">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9V3z" fill="currentColor"></path>
+          </svg>
+          <select id="themeSelect" aria-label="Color Palette">
+            <option value="sage" selected>Subtle Sage</option>
+            <option value="stone">Warm Stone</option>
+            <option value="slate">Nordic Slate</option>
+            <option value="minimal">Zen Minimal</option>
+          </select>
+        </div>
+
         <button id="installBtn" class="btn-install hidden" title="Install ZenPulse as PWA" aria-label="Install App">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>

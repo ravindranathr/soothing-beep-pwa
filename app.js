@@ -300,8 +300,41 @@ const elements = {
   beepCount: document.getElementById('beepCount'),
   sessionDuration: document.getElementById('sessionDuration'),
   resetStatsBtn: document.getElementById('resetStatsBtn'),
-  installBtn: document.getElementById('installBtn')
+  installBtn: document.getElementById('installBtn'),
+  themeSelect: document.getElementById('themeSelect')
 };
+
+// Subtle Palette Gradients for Radial Progress Ring
+const THEME_GRADIENTS = {
+  sage: ['#a6c0b4', '#8ba89b', '#749688'],
+  stone: ['#d6c5b2', '#bfaa95', '#a38e79'],
+  slate: ['#9db5c7', '#7f98ab', '#6c8597'],
+  minimal: ['#cfcfd4', '#b0b0b5', '#929299']
+};
+
+function applyTheme(themeKey) {
+  const selectedTheme = THEME_GRADIENTS[themeKey] ? themeKey : 'sage';
+  document.body.setAttribute('data-theme', selectedTheme);
+  if (elements.themeSelect) {
+    elements.themeSelect.value = selectedTheme;
+  }
+  try {
+    localStorage.setItem('zenpulse-theme', selectedTheme);
+  } catch (e) {}
+  updateRingGradient(selectedTheme);
+}
+
+function updateRingGradient(themeKey = 'sage') {
+  const stops = THEME_GRADIENTS[themeKey] || THEME_GRADIENTS.sage;
+  const gradient = document.getElementById('ringGradient');
+  if (gradient) {
+    gradient.innerHTML = `
+      <stop offset="0%" stop-color="${stops[0]}" />
+      <stop offset="50%" stop-color="${stops[1]}" />
+      <stop offset="100%" stop-color="${stops[2]}" />
+    `;
+  }
+}
 
 // Progress Ring Configuration
 const RING_RADIUS = 120;
@@ -309,15 +342,15 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ~753.98
 elements.progressTrack.style.strokeDasharray = `${CIRCUMFERENCE}`;
 elements.progressTrack.style.strokeDashoffset = '0';
 
-// Inject SVG Gradient dynamically for glowing progress ring
+// Inject SVG Gradient dynamically
 function injectRingGradient() {
   const svg = document.querySelector('.progress-ring');
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
   defs.innerHTML = `
     <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="50%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#06b6d4" />
+      <stop offset="0%" stop-color="#a6c0b4" />
+      <stop offset="50%" stop-color="#8ba89b" />
+      <stop offset="100%" stop-color="#749688" />
     </linearGradient>
   `;
   svg.prepend(defs);
@@ -360,14 +393,14 @@ function updateDisplay() {
   if (state.breathGuideEnabled && state.isRunning) {
     if (fraction > 0.5) {
       elements.breathGuide.textContent = 'Inhale slowly...';
-      elements.breathGuide.style.color = '#34d399';
+      elements.breathGuide.style.opacity = '0.95';
     } else {
       elements.breathGuide.textContent = 'Exhale gently...';
-      elements.breathGuide.style.color = '#06b6d4';
+      elements.breathGuide.style.opacity = '0.75';
     }
   } else {
     elements.breathGuide.textContent = state.isRunning ? 'Mindful Focus' : 'Ready to start';
-    elements.breathGuide.style.color = '#94a3b8';
+    elements.breathGuide.style.opacity = '0.7';
   }
 }
 
@@ -583,9 +616,16 @@ function initEventListeners() {
     elements.sessionDuration.textContent = '00:00';
   });
 
+  // Theme selector
+  if (elements.themeSelect) {
+    elements.themeSelect.addEventListener('change', (e) => {
+      applyTheme(e.target.value);
+    });
+  }
+
   // Keyboard shortcuts: Space for Start/Pause, 'T' for Test chime
   window.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
     if (e.code === 'Space') {
       e.preventDefault();
       toggleTimer();
@@ -631,6 +671,8 @@ function registerServiceWorker() {
 
 // Initialization
 function init() {
+  const savedTheme = localStorage.getItem('zenpulse-theme') || 'sage';
+  applyTheme(savedTheme);
   updateInterval(10);
   initEventListeners();
   registerServiceWorker();
